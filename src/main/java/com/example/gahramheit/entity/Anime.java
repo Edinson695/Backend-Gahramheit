@@ -1,6 +1,7 @@
 package com.example.gahramheit.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.HashSet;
@@ -19,6 +20,7 @@ public class Anime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El título del anime no puede estar vacío")
     @Column(nullable = false)
     private String title;
 

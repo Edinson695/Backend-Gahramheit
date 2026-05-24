@@ -1,6 +1,9 @@
 package com.example.gahramheit.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -29,6 +32,9 @@ public class Review {
     @EqualsAndHashCode.Exclude
     private Anime anime;
 
+    @NotNull(message = "El puntaje es obligatorio")
+    @Min(value = 1, message = "El puntaje mínimo es 1")
+    @Max(value = 10, message = "El puntaje máximo es 10")
     private Integer score;
 
     @Column(columnDefinition = "text")
