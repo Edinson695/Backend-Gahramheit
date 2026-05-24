@@ -1,10 +1,14 @@
 package com.example.gahramheit.repository;
 
-import com.example.proyec_back.entity.User;
+import com.example.gahramheit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+
 }
 
