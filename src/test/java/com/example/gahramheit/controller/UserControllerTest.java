@@ -1,8 +1,9 @@
 package com.example.gahramheit.controller;
 
-import com.example.gahramheit.dto.UserDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserRecapResDTO;
+import com.example.gahramheit.dto.UserResponseDTO;
+import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.exception.GlobalExceptionHandler;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.service.UserService;
@@ -62,7 +63,7 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturnUserWhenUsernameExists() throws Exception {
-        when(userService.getUserByUsername("john")).thenReturn(UserDTO.builder()
+        when(userService.getUserByUsername("john")).thenReturn(UserResponseDTO.builder()
                 .id(1L)
                 .username("john")
                 .email("john@gahramheit.com")
@@ -100,9 +101,8 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldUpdateUserWhenRequestIsValid() throws Exception {
-        UserDTO request = UserDTO.builder().username("new").email("new@gahramheit.com").build();
-        when(userService.updateUser(1L, request)).thenReturn(UserDTO.builder()
-                .id(1L)
+        UserUpdateDTO request = UserUpdateDTO.builder().username("new").email("new@gahramheit.com").build();
+        when(userService.updateUser(1L, request)).thenReturn(UserUpdateDTO.builder()
                 .username("new")
                 .email("new@gahramheit.com")
                 .build());

@@ -5,6 +5,7 @@ import com.example.gahramheit.dto.ReviewResDTO;
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Review;
 import com.example.gahramheit.entity.User;
+import com.example.gahramheit.event.AnimeReviewedEvent;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.ReviewRepository;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +45,9 @@ class ReviewServiceTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private ReviewService reviewService;
 
@@ -65,6 +70,11 @@ class ReviewServiceTest {
         assertThat(savedReview.getAnime()).isEqualTo(anime);
         assertThat(savedReview.getCreatedAt()).isNotNull();
         assertThat(result.getUsername()).isEqualTo("reviewer");
+
+        ArgumentCaptor<AnimeReviewedEvent> eventCaptor = ArgumentCaptor.forClass(AnimeReviewedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getAnimeId()).isEqualTo(10L);
+        assertThat(eventCaptor.getValue().getScore()).isEqualTo(5);
     }
 
     @Test

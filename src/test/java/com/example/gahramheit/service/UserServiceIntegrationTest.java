@@ -1,8 +1,8 @@
 package com.example.gahramheit.service;
 
-import com.example.gahramheit.dto.UserDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserRecapResDTO;
+import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
@@ -54,12 +54,12 @@ class UserServiceIntegrationTest extends AbstractPostgresContainerTest {
     @Test
     void shouldUpdatePersistedUserWhenRequestContainsNewValues() {
         User user = userRepository.save(createUser("update_user"));
-        UserDTO request = UserDTO.builder()
+        UserUpdateDTO request = UserUpdateDTO.builder()
                 .username("updated_user")
                 .email("updated_user@gahramheit.com")
                 .build();
 
-        UserDTO updated = userService.updateUser(user.getId(), request);
+        UserUpdateDTO updated = userService.updateUser(user.getId(), request);
 
         assertThat(updated.getUsername()).isEqualTo("updated_user");
         assertThat(userRepository.findById(user.getId()))

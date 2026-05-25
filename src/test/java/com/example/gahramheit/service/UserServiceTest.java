@@ -1,8 +1,9 @@
 package com.example.gahramheit.service;
 
-import com.example.gahramheit.dto.UserDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserRecapResDTO;
+import com.example.gahramheit.dto.UserResponseDTO;
+import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
@@ -88,11 +89,11 @@ class UserServiceTest {
     @Test
     void shouldReturnUserWhenUsernameExists() {
         User user = createUser(1L, "john", "john@gahramheit.com");
-        UserDTO dto = UserDTO.builder().id(1L).username("john").email("john@gahramheit.com").build();
+        UserResponseDTO dto = UserResponseDTO.builder().id(1L).username("john").email("john@gahramheit.com").build();
         when(userRepository.findByUsername("john")).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserDTO.class)).thenReturn(dto);
+        when(modelMapper.map(user, UserResponseDTO.class)).thenReturn(dto);
 
-        UserDTO result = userService.getUserByUsername("john");
+        UserResponseDTO result = userService.getUserByUsername("john");
 
         assertThat(result.getUsername()).isEqualTo("john");
     }
@@ -117,15 +118,14 @@ class UserServiceTest {
     @Test
     void shouldUpdateOnlyProvidedFieldsWhenUserExists() {
         User user = createUser(1L, "old", "old@gahramheit.com");
-        UserDTO request = UserDTO.builder().username("new").build();
+        UserUpdateDTO request = UserUpdateDTO.builder().username("new").build();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserDTO.class)).thenReturn(UserDTO.builder()
-                .id(1L)
+        when(modelMapper.map(user, UserUpdateDTO.class)).thenReturn(UserUpdateDTO.builder()
                 .username("new")
                 .email("old@gahramheit.com")
                 .build());
 
-        UserDTO result = userService.updateUser(1L, request);
+        UserUpdateDTO result = userService.updateUser(1L, request);
 
         assertThat(user.getUsername()).isEqualTo("new");
         assertThat(user.getEmail()).isEqualTo("old@gahramheit.com");
