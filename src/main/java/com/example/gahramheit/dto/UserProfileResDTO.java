@@ -12,6 +12,7 @@ import lombok.Builder;
 public class UserProfileResDTO {
     private Long id;
     private String username;
+    private String role;
     private String rango; // Ej: "Otaku en formación"
     private Integer episodiosVistos;
     private Integer animesCompletados;

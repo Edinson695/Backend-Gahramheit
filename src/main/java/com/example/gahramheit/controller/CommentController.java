@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getReplies(commentId));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/anime/{animeId}/comments")
     public ResponseEntity<CommentResDTO> createComment(
             @PathVariable Long animeId,
@@ -40,12 +42,14 @@ public class CommentController {
                 .body(commentService.createComment(userId, animeId, request));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/api/comments/{commentId}/like")
     public ResponseEntity<Void> likeComment(@PathVariable Long commentId) {
         commentService.likeComment(commentId);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/api/comments/{commentId}/dislike")
     public ResponseEntity<Void> dislikeComment(@PathVariable Long commentId) {
         commentService.dislikeComment(commentId);

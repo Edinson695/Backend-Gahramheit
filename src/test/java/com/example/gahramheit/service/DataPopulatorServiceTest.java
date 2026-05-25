@@ -1,5 +1,6 @@
 package com.example.gahramheit.service;
 
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.EpisodeRepository;
@@ -73,6 +74,7 @@ class DataPopulatorServiceTest {
             user.setUsername(username);
             user.setEmail(username + "@gahramheit.com");
             user.setPassword("password123");
+            user.setRole(Role.USER);
             return Optional.of(user);
         });
         when(animeRepository.findAll()).thenReturn(List.of());

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/reviews")
     public ResponseEntity<ReviewResDTO> createReview(
             @RequestParam Long userId,
@@ -35,6 +37,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/reviews/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
         reviewService.deleteReview(id);

@@ -3,6 +3,7 @@ package com.example.gahramheit.service;
 import com.example.gahramheit.dto.ReviewCreateReqDTO;
 import com.example.gahramheit.dto.ReviewResDTO;
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
@@ -79,6 +80,7 @@ class ReviewServiceIntegrationTest extends AbstractPostgresContainerTest {
                 .username(username)
                 .email(username + "@gahramheit.com")
                 .password("password123")
+                .role(Role.USER)
                 .build();
     }
 

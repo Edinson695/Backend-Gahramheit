@@ -2,6 +2,7 @@ package com.example.gahramheit.repository;
 
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Genre;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserAnimeList;
@@ -143,6 +144,7 @@ class AnimeRepositoryTest extends AbstractRepositoryTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("password123");
+        user.setRole(Role.USER);
         return user;
     }
 

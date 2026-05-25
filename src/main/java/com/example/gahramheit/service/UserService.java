@@ -4,15 +4,19 @@ import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserRecapResDTO;
 import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserAnimeList;
+import com.example.gahramheit.exception.AccessDeniedException;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.UserAnimeListRepository;
 import com.example.gahramheit.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -79,6 +83,15 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!user.getUsername().equals(currentUsername) && !isAdmin) {
+            throw new AccessDeniedException("You can only update your own profile");
+        }
+
         Optional.ofNullable(request.getUsername()).ifPresent(user::setUsername);
         Optional.ofNullable(request.getEmail()).ifPresent(user::setEmail);
 
@@ -90,6 +103,14 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
+    }
+
+    public UserResponseDTO updateUserRole(Long id, Role newRole) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setRole(newRole);
+        userRepository.save(user);
+        return modelMapper.map(user, UserResponseDTO.class);
     }
 
     private UserProfileResDTO buildProfile(User user) {
@@ -107,6 +128,7 @@ public class UserService {
         UserProfileResDTO dto = new UserProfileResDTO();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
+        dto.setRole(user.getRole().name());
         dto.setEpisodiosVistos(episodiosVistos);
         dto.setAnimesCompletados((int) animesCompletados);
         dto.setLogrosDesbloqueados("0/6");

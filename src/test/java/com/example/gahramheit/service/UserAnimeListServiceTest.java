@@ -4,10 +4,15 @@ import com.example.gahramheit.dto.AnimeStatus;
 import com.example.gahramheit.dto.UpdateUserAnimeListReqDTO;
 import com.example.gahramheit.dto.UserAnimeListResDTO;
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserAnimeList;
 import com.example.gahramheit.entity.UserAnimeListId;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.UserAnimeListRepository;
@@ -72,6 +77,7 @@ class UserAnimeListServiceTest {
     @Test
     void shouldCreateAnimeInListWhenEntryDoesNotExist() {
         User user = createUser(1L, "watcher");
+        setUpSecurityContext("watcher", user);
         Anime anime = createAnime(10L, "Frieren");
         UpdateUserAnimeListReqDTO request = new UpdateUserAnimeListReqDTO(10L, AnimeStatus.Completed, 28);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -90,6 +96,7 @@ class UserAnimeListServiceTest {
     @Test
     void shouldUpdateAnimeInListWhenEntryExists() {
         User user = createUser(1L, "watcher");
+        setUpSecurityContext("watcher", user);
         Anime anime = createAnime(10L, "Frieren");
         UserAnimeList entry = createUserAnimeList(user, anime, Status.WATCHING, 3);
         UpdateUserAnimeListReqDTO request = new UpdateUserAnimeListReqDTO(10L, AnimeStatus.Dropped, null);
@@ -107,6 +114,7 @@ class UserAnimeListServiceTest {
     @Test
     void shouldThrowResourceNotFoundWhenUpdatingListForMissingAnime() {
         User user = createUser(1L, "watcher");
+        setUpSecurityContext("watcher", user);
         UpdateUserAnimeListReqDTO request = new UpdateUserAnimeListReqDTO(99L, AnimeStatus.Watching, 1);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(animeRepository.findById(99L)).thenReturn(Optional.empty());
@@ -119,7 +127,9 @@ class UserAnimeListServiceTest {
 
     @Test
     void shouldRemoveFromListWhenEntryExists() {
-        UserAnimeList entry = createUserAnimeList(createUser(1L, "watcher"), createAnime(10L, "Frieren"), Status.WATCHING, 3);
+        User user = createUser(1L, "watcher");
+        setUpSecurityContext("watcher", user);
+        UserAnimeList entry = createUserAnimeList(user, createAnime(10L, "Frieren"), Status.WATCHING, 3);
         when(userAnimeListRepository.findById(new UserAnimeListId(1L, 10L))).thenReturn(Optional.of(entry));
 
         userAnimeListService.removeFromList(1L, 10L);
@@ -129,6 +139,8 @@ class UserAnimeListServiceTest {
 
     @Test
     void shouldThrowResourceNotFoundWhenRemovingMissingEntry() {
+        User user = createUser(1L, "watcher");
+        setUpSecurityContext("watcher", user);
         when(userAnimeListRepository.findById(new UserAnimeListId(1L, 10L))).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userAnimeListService.removeFromList(1L, 10L))
@@ -136,10 +148,21 @@ class UserAnimeListServiceTest {
                 .hasMessage("Entry not found for user 1 and anime 10");
     }
 
+    private void setUpSecurityContext(String username, User user) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")))
+        );
+        SecurityContextHolder.setContext(context);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+    }
+
     private User createUser(Long id, String username) {
         User user = new User();
         user.setId(id);
         user.setUsername(username);
+        user.setRole(Role.USER);
         return user;
     }
 

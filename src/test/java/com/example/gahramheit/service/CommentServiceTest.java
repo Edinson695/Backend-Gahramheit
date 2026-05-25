@@ -3,6 +3,7 @@ package com.example.gahramheit.service;
 import com.example.gahramheit.dto.CommentCreateReqDTO;
 import com.example.gahramheit.dto.CommentResDTO;
 import com.example.gahramheit.entity.Comment;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.exception.InvalidDataException;
 import com.example.gahramheit.exception.ResourceNotFoundException;
@@ -162,6 +163,7 @@ class CommentServiceTest {
         User user = new User();
         user.setId(id);
         user.setUsername(username);
+        user.setRole(Role.USER);
         return user;
     }
 }

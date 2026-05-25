@@ -133,6 +133,7 @@ public class DataPopulatorService {
                 newUser.setUsername(username);
                 newUser.setEmail(username + "@gahramheit.com");
                 newUser.setPassword("password123"); // Contraseña falsa para pruebas
+                newUser.setRole(Role.USER);
                 users.add(userRepository.save(newUser));
             }
         }

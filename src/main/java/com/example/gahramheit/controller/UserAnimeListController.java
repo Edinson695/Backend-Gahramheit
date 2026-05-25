@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserAnimeListController {
         return ResponseEntity.ok(userAnimeListService.getUserList(userId));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping
     public ResponseEntity<UserAnimeListResDTO> updateAnimeInList(
             @PathVariable Long userId,
@@ -30,6 +32,7 @@ public class UserAnimeListController {
         return ResponseEntity.ok(userAnimeListService.updateAnimeInList(userId, request));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{animeId}")
     public ResponseEntity<Void> removeFromList(
             @PathVariable Long userId,

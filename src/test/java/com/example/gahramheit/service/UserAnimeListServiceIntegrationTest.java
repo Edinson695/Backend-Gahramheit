@@ -4,6 +4,7 @@ import com.example.gahramheit.dto.AnimeStatus;
 import com.example.gahramheit.dto.UpdateUserAnimeListReqDTO;
 import com.example.gahramheit.dto.UserAnimeListResDTO;
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
@@ -13,6 +14,10 @@ import com.example.gahramheit.support.AbstractPostgresContainerTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -39,6 +44,7 @@ class UserAnimeListServiceIntegrationTest extends AbstractPostgresContainerTest 
     @Test
     void shouldPersistAnimeInUserListWhenRequestIsValid() {
         User user = userRepository.save(createUser("list_user"));
+        setUpSecurityContext("list_user");
         Anime anime = animeRepository.save(createAnime("List Anime"));
         UpdateUserAnimeListReqDTO request = new UpdateUserAnimeListReqDTO(anime.getId(), AnimeStatus.Watching, 3);
 
@@ -53,6 +59,7 @@ class UserAnimeListServiceIntegrationTest extends AbstractPostgresContainerTest 
     @Test
     void shouldUpdateExistingAnimeInUserListWhenEntryAlreadyExists() {
         User user = userRepository.save(createUser("list_update_user"));
+        setUpSecurityContext("list_update_user");
         Anime anime = animeRepository.save(createAnime("List Update Anime"));
         userAnimeListService.updateAnimeInList(user.getId(),
                 new UpdateUserAnimeListReqDTO(anime.getId(), AnimeStatus.Watching, 2));
@@ -75,6 +82,7 @@ class UserAnimeListServiceIntegrationTest extends AbstractPostgresContainerTest 
     @Test
     void shouldReturnUserListWhenUserHasPersistedEntries() {
         User user = userRepository.save(createUser("list_read_user"));
+        setUpSecurityContext("list_read_user");
         Anime anime = animeRepository.save(createAnime("Readable List Anime"));
         userAnimeListService.updateAnimeInList(user.getId(),
                 new UpdateUserAnimeListReqDTO(anime.getId(), AnimeStatus.Completed, 10));
@@ -88,11 +96,21 @@ class UserAnimeListServiceIntegrationTest extends AbstractPostgresContainerTest 
                 .isEqualTo("Readable List Anime");
     }
 
+    private void setUpSecurityContext(String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")))
+        );
+        SecurityContextHolder.setContext(context);
+    }
+
     private User createUser(String username) {
         return User.builder()
                 .username(username)
                 .email(username + "@gahramheit.com")
                 .password("password123")
+                .role(Role.USER)
                 .build();
     }
 
