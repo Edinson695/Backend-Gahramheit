@@ -11,7 +11,10 @@ public abstract class AbstractPostgresContainerTest {
 
     private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse("postgres:16-alpine");
 
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(POSTGRES_IMAGE);
+    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(POSTGRES_IMAGE)
+            .withDatabaseName("gahramheit_test")
+            .withUsername("test")
+            .withPassword("test");
 
     static {
         POSTGRES.start();

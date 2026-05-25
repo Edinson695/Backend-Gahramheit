@@ -2,11 +2,16 @@ package com.example.gahramheit.repository;
 
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Genre;
+import com.example.gahramheit.entity.Status;
+import com.example.gahramheit.entity.User;
+import com.example.gahramheit.entity.UserAnimeList;
+import com.example.gahramheit.entity.UserAnimeListId;
 import com.example.gahramheit.support.AbstractRepositoryTest;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +24,12 @@ class AnimeRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
     private GenreRepository genreRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserAnimeListRepository userAnimeListRepository;
 
     @Test
     void shouldSaveAnimeWhenAnimeIsValid() {
@@ -54,6 +65,19 @@ class AnimeRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Test
+    void shouldFindAnimesWhenTitleContainsTextIgnoringCase() {
+        animeRepository.saveAndFlush(createAnime("Sousou no Frieren", 52991, 28));
+        animeRepository.saveAndFlush(createAnime("Frieren: Beyond Journey's End", 52992, 28));
+        animeRepository.saveAndFlush(createAnime("Mob Psycho 100", 32182, 12));
+
+        List<Anime> foundAnimes = animeRepository.findByTitleContainingIgnoreCase("FRIEREN");
+
+        assertThat(foundAnimes)
+                .extracting(Anime::getTitle)
+                .containsExactlyInAnyOrder("Sousou no Frieren", "Frieren: Beyond Journey's End");
+    }
+
+    @Test
     void shouldRejectAnimeWhenTitleIsBlank() {
         Anime anime = createAnime("", 3, 12);
 
@@ -76,6 +100,29 @@ class AnimeRepositoryTest extends AbstractRepositoryTest {
                 .containsExactly("Adventure");
     }
 
+    @Test
+    void shouldReturnMostWatchedGenreWhenUserHasAnimeList() {
+        Genre action = genreRepository.saveAndFlush(createGenre("Action"));
+        Genre drama = genreRepository.saveAndFlush(createGenre("Drama"));
+        Anime firstActionAnime = createAnime("Attack on Titan", 16498, 25);
+        firstActionAnime.getGenres().add(action);
+        Anime secondActionAnime = createAnime("Jujutsu Kaisen", 40748, 24);
+        secondActionAnime.getGenres().add(action);
+        Anime dramaAnime = createAnime("Violet Evergarden", 33352, 13);
+        dramaAnime.getGenres().add(drama);
+        firstActionAnime = animeRepository.saveAndFlush(firstActionAnime);
+        secondActionAnime = animeRepository.saveAndFlush(secondActionAnime);
+        dramaAnime = animeRepository.saveAndFlush(dramaAnime);
+        User user = userRepository.saveAndFlush(createUser("genre-user", "genre-user@gahramheit.com"));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(user, firstActionAnime));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(user, secondActionAnime));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(user, dramaAnime));
+
+        String mostWatchedGenre = animeRepository.getMostWatchedGenreByUser(user.getId());
+
+        assertThat(mostWatchedGenre).isEqualTo("Action");
+    }
+
     private Anime createAnime(String title, Integer malId, Integer episodesCount) {
         Anime anime = new Anime();
         anime.setTitle(title);
@@ -89,5 +136,26 @@ class AnimeRepositoryTest extends AbstractRepositoryTest {
         Genre genre = new Genre();
         genre.setName(name);
         return genre;
+    }
+
+    private User createUser(String username, String email) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("password123");
+        return user;
+    }
+
+    private UserAnimeList createUserAnimeList(
+            User user,
+            Anime anime
+    ) {
+        UserAnimeList userAnimeList = new UserAnimeList();
+        userAnimeList.setId(new UserAnimeListId(user.getId(), anime.getId()));
+        userAnimeList.setUser(user);
+        userAnimeList.setAnime(anime);
+        userAnimeList.setStatus(Status.WATCHING);
+        userAnimeList.setCurrentEpisode(1);
+        return userAnimeList;
     }
 }

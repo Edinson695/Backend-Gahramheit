@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +42,29 @@ class EpisodeRepositoryTest extends AbstractRepositoryTest {
 
         assertThat(foundEpisode).isPresent();
         assertThat(foundEpisode.get().getTitle()).isEqualTo("Ochimusha");
+    }
+
+    @Test
+    void shouldFindEpisodesOrderedByNumberWhenAnimeExists() {
+        Anime anime = animeRepository.saveAndFlush(createAnime("Bocchi the Rock"));
+        episodeRepository.saveAndFlush(createEpisode(anime, 3, "Be Right There"));
+        episodeRepository.saveAndFlush(createEpisode(anime, 1, "Lonely Rolling Bocchi"));
+        episodeRepository.saveAndFlush(createEpisode(anime, 2, "See You Tomorrow"));
+
+        List<Episode> episodes = episodeRepository.findByAnimeIdOrderByEpisodeNumberAsc(anime.getId());
+
+        assertThat(episodes)
+                .extracting(Episode::getEpisodeNumber)
+                .containsExactly(1, 2, 3);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenAnimeHasNoEpisodes() {
+        Anime anime = animeRepository.saveAndFlush(createAnime("No Episodes Yet"));
+
+        List<Episode> episodes = episodeRepository.findByAnimeIdOrderByEpisodeNumberAsc(anime.getId());
+
+        assertThat(episodes).isEmpty();
     }
 
     @Test

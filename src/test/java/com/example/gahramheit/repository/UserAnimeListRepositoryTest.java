@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +52,24 @@ class UserAnimeListRepositoryTest extends AbstractRepositoryTest {
 
         assertThat(foundUserAnimeList).isPresent();
         assertThat(foundUserAnimeList.get().getStatus()).isEqualTo(Status.COMPLETED);
+    }
+
+    @Test
+    void shouldFindUserAnimeListsWhenUserExists() {
+        User user = userRepository.saveAndFlush(createUser("list-owner", "list-owner@gahramheit.com"));
+        Anime firstAnime = animeRepository.saveAndFlush(createAnime("First User Anime"));
+        Anime secondAnime = animeRepository.saveAndFlush(createAnime("Second User Anime"));
+        Anime otherAnime = animeRepository.saveAndFlush(createAnime("Other User Anime"));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(user, firstAnime, Status.WATCHING, 1));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(user, secondAnime, Status.COMPLETED, 12));
+        User otherUser = userRepository.saveAndFlush(createUser("other-list-owner", "other-list-owner@gahramheit.com"));
+        userAnimeListRepository.saveAndFlush(createUserAnimeList(otherUser, otherAnime, Status.DROPPED, 2));
+
+        List<UserAnimeList> animeLists = userAnimeListRepository.findByUserId(user.getId());
+
+        assertThat(animeLists)
+                .extracting(userAnimeList -> userAnimeList.getAnime().getTitle())
+                .containsExactlyInAnyOrder("First User Anime", "Second User Anime");
     }
 
     @Test

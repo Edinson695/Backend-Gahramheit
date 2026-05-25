@@ -39,8 +39,25 @@ class UserRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Test
+    void shouldFindUserWhenEmailExists() {
+        User savedUser = userRepository.saveAndFlush(createUser("email-user", "email-user@gahramheit.com"));
+
+        Optional<User> foundUser = userRepository.findByEmail("email-user@gahramheit.com");
+
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getId()).isEqualTo(savedUser.getId());
+    }
+
+    @Test
     void shouldReturnEmptyWhenUsernameDoesNotExist() {
         Optional<User> foundUser = userRepository.findByUsername("missing-user");
+
+        assertThat(foundUser).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenEmailDoesNotExist() {
+        Optional<User> foundUser = userRepository.findByEmail("missing@gahramheit.com");
 
         assertThat(foundUser).isEmpty();
     }

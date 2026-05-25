@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +51,45 @@ class ReviewRepositoryTest extends AbstractRepositoryTest {
 
         assertThat(foundReview).isPresent();
         assertThat(foundReview.get().getComment()).isEqualTo("Great anime");
+    }
+
+    @Test
+    void shouldFindReviewsWhenAnimeExists() {
+        User firstUser = userRepository.saveAndFlush(createUser("anime-reviewer-1", "anime-reviewer-1@gahramheit.com"));
+        User secondUser = userRepository.saveAndFlush(createUser("anime-reviewer-2", "anime-reviewer-2@gahramheit.com"));
+        Anime anime = animeRepository.saveAndFlush(createAnime("Hunter x Hunter"));
+        Anime otherAnime = animeRepository.saveAndFlush(createAnime("Other Anime"));
+        reviewRepository.saveAndFlush(createReview(firstUser, anime, 9));
+        reviewRepository.saveAndFlush(createReview(secondUser, anime, 10));
+        reviewRepository.saveAndFlush(createReview(firstUser, otherAnime, 7));
+
+        List<Review> reviews = reviewRepository.findByAnimeId(anime.getId());
+
+        assertThat(reviews)
+                .extracting(Review::getScore)
+                .containsExactlyInAnyOrder(9, 10);
+    }
+
+    @Test
+    void shouldReturnAverageScoreWhenUserHasReviews() {
+        User user = userRepository.saveAndFlush(createUser("average-user", "average-user@gahramheit.com"));
+        Anime firstAnime = animeRepository.saveAndFlush(createAnime("First Average Anime"));
+        Anime secondAnime = animeRepository.saveAndFlush(createAnime("Second Average Anime"));
+        reviewRepository.saveAndFlush(createReview(user, firstAnime, 8));
+        reviewRepository.saveAndFlush(createReview(user, secondAnime, 9));
+
+        Double averageScore = reviewRepository.getAverageScoreByUser(user.getId());
+
+        assertThat(averageScore).isEqualTo(8.5);
+    }
+
+    @Test
+    void shouldReturnNullAverageScoreWhenUserHasNoReviews() {
+        User user = userRepository.saveAndFlush(createUser("no-reviews", "no-reviews@gahramheit.com"));
+
+        Double averageScore = reviewRepository.getAverageScoreByUser(user.getId());
+
+        assertThat(averageScore).isNull();
     }
 
     @Test

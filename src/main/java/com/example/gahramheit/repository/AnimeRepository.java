@@ -10,11 +10,12 @@ import java.util.List;
 public interface AnimeRepository extends JpaRepository<Anime, Long> {
     List<Anime> findByTitleContainingIgnoreCase(String title);
     @org.springframework.data.jpa.repository.Query(
-            value = "SELECT a.genre FROM user_anime_list ual " +
-                    "JOIN animes a ON ual.anime_id = a.id " +
-                    "WHERE ual.user_id = :userId AND a.genre IS NOT NULL " +
-                    "GROUP BY a.genre " +
-                    "ORDER BY COUNT(a.genre) DESC LIMIT 1",
+            value = "SELECT g.name FROM user_anime_list ual " +
+                    "JOIN anime_genre ag ON ual.anime_id = ag.anime_id " +
+                    "JOIN genres g ON ag.genre_id = g.id " +
+                    "WHERE ual.user_id = :userId " +
+                    "GROUP BY g.name " +
+                    "ORDER BY COUNT(g.name) DESC LIMIT 1",
             nativeQuery = true)
     String getMostWatchedGenreByUser(@org.springframework.data.repository.query.Param("userId") Long userId);
 

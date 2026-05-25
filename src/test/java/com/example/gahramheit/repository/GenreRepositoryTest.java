@@ -25,6 +25,23 @@ class GenreRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Test
+    void shouldFindGenreWhenNameExists() {
+        Genre savedGenre = genreRepository.saveAndFlush(createGenre("Seinen"));
+
+        var foundGenre = genreRepository.findByName("Seinen");
+
+        assertThat(foundGenre).isPresent();
+        assertThat(foundGenre.get().getId()).isEqualTo(savedGenre.getId());
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNameDoesNotExist() {
+        var foundGenre = genreRepository.findByName("Missing Genre");
+
+        assertThat(foundGenre).isEmpty();
+    }
+
+    @Test
     void shouldRejectDuplicateGenreWhenNameAlreadyExists() {
         genreRepository.saveAndFlush(createGenre("Drama"));
 
