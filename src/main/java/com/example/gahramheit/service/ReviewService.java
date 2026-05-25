@@ -6,6 +6,7 @@ import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Review;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.event.AnimeReviewedEvent;
+import com.example.gahramheit.exception.AccessDeniedException;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.ReviewRepository;
@@ -13,6 +14,8 @@ import com.example.gahramheit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -69,6 +72,17 @@ public class ReviewService {
     public void deleteReview(Long id) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        boolean isOwner = review.getUser().getUsername().equals(currentUsername);
+        boolean isModeratorOrAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MODERATOR") || a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isOwner && !isModeratorOrAdmin) {
+            throw new AccessDeniedException("You can only delete your own reviews");
+        }
+
         reviewRepository.delete(review);
     }
 

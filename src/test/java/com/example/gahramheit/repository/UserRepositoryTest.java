@@ -1,5 +1,6 @@
 package com.example.gahramheit.repository;
 
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.support.AbstractRepositoryTest;
 import jakarta.validation.ConstraintViolationException;
@@ -104,6 +105,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("password123");
+        user.setRole(Role.USER);
         return user;
     }
 }

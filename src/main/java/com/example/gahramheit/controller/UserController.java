@@ -4,11 +4,13 @@ import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserRecapResDTO;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,6 +42,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserRecap(id, year));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<UserUpdateDTO> updateUser(
             @PathVariable Long id,
@@ -47,9 +50,18 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/role")
+    public ResponseEntity<UserResponseDTO> updateUserRole(
+            @PathVariable Long id,
+            @RequestParam Role role) {
+        return ResponseEntity.ok(userService.updateUserRole(id, role));
     }
 }

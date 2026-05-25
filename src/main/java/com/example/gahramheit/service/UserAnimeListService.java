@@ -4,11 +4,14 @@ import com.example.gahramheit.dto.AnimeStatus;
 import com.example.gahramheit.dto.UpdateUserAnimeListReqDTO;
 import com.example.gahramheit.dto.UserAnimeListResDTO;
 import com.example.gahramheit.entity.*;
+import com.example.gahramheit.exception.AccessDeniedException;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.UserAnimeListRepository;
 import com.example.gahramheit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +38,8 @@ public class UserAnimeListService {
     }
 
     public UserAnimeListResDTO updateAnimeInList(Long userId, UpdateUserAnimeListReqDTO request) {
+        verifyOwnership(userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
@@ -63,6 +68,8 @@ public class UserAnimeListService {
     }
 
     public void removeFromList(Long userId, Long animeId) {
+        verifyOwnership(userId);
+
         UserAnimeListId id = new UserAnimeListId(userId, animeId);
 
         UserAnimeList entry = userAnimeListRepository.findById(id)
@@ -89,6 +96,20 @@ public class UserAnimeListService {
             case COMPLETED: return AnimeStatus.Completed;
             case DROPPED:   return AnimeStatus.Dropped;
             default: throw new IllegalArgumentException("Unknown status: " + status);
+        }
+    }
+
+    private void verifyOwnership(Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!currentUser.getId().equals(userId) && !isAdmin) {
+            throw new AccessDeniedException("You can only manage your own anime list");
         }
     }
 

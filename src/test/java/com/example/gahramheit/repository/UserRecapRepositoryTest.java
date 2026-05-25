@@ -1,5 +1,6 @@
 package com.example.gahramheit.repository;
 
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserRecap;
 import com.example.gahramheit.support.AbstractRepositoryTest;
@@ -84,6 +85,7 @@ class UserRecapRepositoryTest extends AbstractRepositoryTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("password123");
+        user.setRole(Role.USER);
         return user;
     }
 

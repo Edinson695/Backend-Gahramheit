@@ -3,8 +3,13 @@ package com.example.gahramheit.service;
 import com.example.gahramheit.dto.ReviewCreateReqDTO;
 import com.example.gahramheit.dto.ReviewResDTO;
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.Review;
 import com.example.gahramheit.entity.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.gahramheit.event.AnimeReviewedEvent;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.AnimeRepository;
@@ -128,6 +133,7 @@ class ReviewServiceTest {
 
     @Test
     void shouldDeleteReviewWhenReviewExists() {
+        setUpSecurityContext("reader");
         Review review = createReview(100L, createUser(1L, "reader"), createAnime(10L, "Frieren"), 5);
         when(reviewRepository.findById(100L)).thenReturn(Optional.of(review));
 
@@ -143,6 +149,15 @@ class ReviewServiceTest {
         assertThatThrownBy(() -> reviewService.getReviewById(99L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Review not found with id: 99");
+    }
+
+    private void setUpSecurityContext(String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")))
+        );
+        SecurityContextHolder.setContext(context);
     }
 
     private User createUser(Long id, String username) {

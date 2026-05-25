@@ -3,6 +3,7 @@ package com.example.gahramheit.service;
 import com.example.gahramheit.dto.AuthResDTO;
 import com.example.gahramheit.dto.UserLoginReqDTO;
 import com.example.gahramheit.dto.UserRegisterReqDTO;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.event.UserRegisteredEvent;
 import com.example.gahramheit.exception.DuplicateResourceException;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,7 +60,7 @@ class AuthServiceTest {
         User user = createUser(1L, "john", "john@gahramheit.com");
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(jwtUtils.generateToken("john")).thenReturn("jwt-token");
+        when(jwtUtils.generateToken(any(), eq("john"), any())).thenReturn("jwt-token");
         when(userRepository.findByUsername("john")).thenReturn(Optional.of(user));
 
         AuthResDTO result = authService.login(request);
@@ -75,7 +77,6 @@ class AuthServiceTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken("ghost", null);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(jwtUtils.generateToken("ghost")).thenReturn("jwt-token");
         when(userRepository.findByUsername("ghost")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(request))
@@ -89,7 +90,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername("john")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("john@gahramheit.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
-        when(jwtUtils.generateToken("john")).thenReturn("jwt-token");
+        when(jwtUtils.generateToken(any(), eq("john"), any())).thenReturn("jwt-token");
 
         AuthResDTO result = authService.register(request);
 
@@ -138,6 +139,7 @@ class AuthServiceTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("encoded-password");
+        user.setRole(Role.USER);
         return user;
     }
 }

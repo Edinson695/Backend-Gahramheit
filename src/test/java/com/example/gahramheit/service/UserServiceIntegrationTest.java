@@ -5,6 +5,7 @@ import com.example.gahramheit.dto.UserRecapResDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.entity.Anime;
 import com.example.gahramheit.entity.Status;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserAnimeList;
 import com.example.gahramheit.entity.UserAnimeListId;
@@ -16,7 +17,13 @@ import com.example.gahramheit.support.AbstractPostgresContainerTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,6 +61,7 @@ class UserServiceIntegrationTest extends AbstractPostgresContainerTest {
     @Test
     void shouldUpdatePersistedUserWhenRequestContainsNewValues() {
         User user = userRepository.save(createUser("update_user"));
+        setUpSecurityContext("update_user");
         UserUpdateDTO request = UserUpdateDTO.builder()
                 .username("updated_user")
                 .email("updated_user@gahramheit.com")
@@ -99,11 +107,21 @@ class UserServiceIntegrationTest extends AbstractPostgresContainerTest {
         userAnimeListRepository.save(entry);
     }
 
+    private void setUpSecurityContext(String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")))
+        );
+        SecurityContextHolder.setContext(context);
+    }
+
     private User createUser(String username) {
         return User.builder()
                 .username(username)
                 .email(username + "@gahramheit.com")
                 .password("password123")
+                .role(Role.USER)
                 .build();
     }
 

@@ -3,6 +3,7 @@ package com.example.gahramheit.service;
 import com.example.gahramheit.dto.AuthResDTO;
 import com.example.gahramheit.dto.UserLoginReqDTO;
 import com.example.gahramheit.dto.UserRegisterReqDTO;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.event.UserRegisteredEvent;
 import com.example.gahramheit.exception.DuplicateResourceException;
@@ -32,14 +33,16 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getUsernameOrEmail(), request.getPassword())
         );
 
-        String token = jwtUtils.generateToken(authentication.getName());
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + authentication.getName()));
+
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
 
         AuthResDTO.UserBasicInfo userInfo = AuthResDTO.UserBasicInfo.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .role(user.getRole().name())
                 .build();
 
         return AuthResDTO.builder().token(token).user(userInfo).build();
@@ -58,18 +61,20 @@ public class AuthService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
                 .build();
 
         userRepository.save(user);
 
         eventPublisher.publishEvent(new UserRegisteredEvent(user.getEmail(), user.getUsername()));
 
-        String token = jwtUtils.generateToken(user.getUsername());
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
 
         AuthResDTO.UserBasicInfo userInfo = AuthResDTO.UserBasicInfo.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .role(user.getRole().name())
                 .build();
 
         return AuthResDTO.builder().token(token).user(userInfo).build();

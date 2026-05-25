@@ -5,10 +5,15 @@ import com.example.gahramheit.dto.UserRecapResDTO;
 import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.entity.Status;
 import com.example.gahramheit.entity.User;
 import com.example.gahramheit.entity.UserAnimeList;
 import com.example.gahramheit.entity.UserAnimeListId;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.gahramheit.exception.ResourceNotFoundException;
 import com.example.gahramheit.repository.UserAnimeListRepository;
 import com.example.gahramheit.repository.UserRepository;
@@ -117,6 +122,7 @@ class UserServiceTest {
 
     @Test
     void shouldUpdateOnlyProvidedFieldsWhenUserExists() {
+        setUpSecurityContext("old");
         User user = createUser(1L, "old", "old@gahramheit.com");
         UserUpdateDTO request = UserUpdateDTO.builder().username("new").build();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -143,12 +149,22 @@ class UserServiceTest {
         verify(userRepository).delete(user);
     }
 
+    private void setUpSecurityContext(String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")))
+        );
+        SecurityContextHolder.setContext(context);
+    }
+
     private User createUser(Long id, String username, String email) {
         User user = new User();
         user.setId(id);
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("password123");
+        user.setRole(Role.USER);
         return user;
     }
 
