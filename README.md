@@ -88,7 +88,7 @@ La plataforma backend de **Gahramheit** posee los servicios necesarios para sopo
 * **Framework Principal:** Spring Boot (Spring Web, Spring Security)
 * **Persistencia de Datos:** Spring Data JPA con Hibernate
 * **Bases de Datos:** Neon (PostgreSQL)
-* **APIs Externas:** Jikan API (API REST gratuita basada en MyAnimeList)
+* **APIs Externas:** [Jikan API](https://jikan.moe/) (API REST gratuita basada en MyAnimeList)
 * **Herramientas:** Lombok, Validation, ModelMapper 
 
 ---
@@ -96,8 +96,8 @@ La plataforma backend de **Gahramheit** posee los servicios necesarios para sopo
 ## 4. Modelo de Entidades
 
 ### Diagrama de Entidades
-[Insertar aquí la imagen o link de tu diagrama de clases o Entidad-Relación de la base de datos]
-![Diagrama Entidad-Relación](path/to/diagram.png)
+
+![Diagrama Entidad-Relación](imgs/d_e_r.png)
 
 ### Descripción de Entidades
 [Explicar detalladamente las entidades principales del negocio, detallando sus atributos más representativos y los tipos de relaciones implementadas entre ellas, por ejemplo: @OneToMany, @ManyToOne, @ManyToMany, indicando las configuraciones de cascade types o fetch types optimizados.]
