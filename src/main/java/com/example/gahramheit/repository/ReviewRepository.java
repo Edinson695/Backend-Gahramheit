@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    List<Review> findByAnimeId(Long animeId);
+    List<Review> findByAnime_Id(Long animeId);
 
     @Query("SELECT ROUND(AVG(r.score), 1) FROM Review r WHERE r.user.id = :userId")
     Double getAverageScoreByUser(@Param("userId") Long userId);

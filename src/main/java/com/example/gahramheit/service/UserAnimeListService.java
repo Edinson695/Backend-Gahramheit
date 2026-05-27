@@ -4,8 +4,8 @@ import com.example.gahramheit.dto.AnimeStatus;
 import com.example.gahramheit.dto.UpdateUserAnimeListReqDTO;
 import com.example.gahramheit.dto.UserAnimeListResDTO;
 import com.example.gahramheit.entity.*;
-import com.example.gahramheit.exception.AccessDeniedException;
 import com.example.gahramheit.exception.ResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import com.example.gahramheit.repository.AnimeRepository;
 import com.example.gahramheit.repository.UserAnimeListRepository;
 import com.example.gahramheit.repository.UserRepository;
@@ -13,13 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserAnimeListService {
 
     private final UserAnimeListRepository userAnimeListRepository;
@@ -31,7 +32,7 @@ public class UserAnimeListService {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
 
-        return userAnimeListRepository.findByUserId(userId)
+        return userAnimeListRepository.findByUser_Id(userId)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -67,6 +68,7 @@ public class UserAnimeListService {
         return toDto(userAnimeList);
     }
 
+    @Transactional
     public void removeFromList(Long userId, Long animeId) {
         verifyOwnership(userId);
 
@@ -74,7 +76,7 @@ public class UserAnimeListService {
 
         UserAnimeList entry = userAnimeListRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Entry not found for user " + userId + " and anime " + animeId));
+                        "Entrada no encontrada para la usuaria" + userId + " y el anime " + animeId));
 
         userAnimeListRepository.delete(entry);
     }
@@ -91,34 +93,39 @@ public class UserAnimeListService {
     }
 
     private AnimeStatus toAnimeStatus(Status status) {
-        switch (status) {
-            case WATCHING:  return AnimeStatus.Watching;
-            case COMPLETED: return AnimeStatus.Completed;
-            case DROPPED:   return AnimeStatus.Dropped;
-            default: throw new IllegalArgumentException("Unknown status: " + status);
-        }
+        return switch (status) {
+            case WATCHING -> AnimeStatus.Watching;
+            case COMPLETED -> AnimeStatus.Completed;
+            case DROPPED -> AnimeStatus.Dropped;
+            default -> throw new IllegalArgumentException("Estatus desconocido: " + status);
+        };
     }
 
     private void verifyOwnership(Long userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Acceso denegado. Debe estar autenticado.");
+        }
+
         String currentUsername = auth.getName();
         User currentUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la autenticación del usuario"));
 
         boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
 
         if (!currentUser.getId().equals(userId) && !isAdmin) {
-            throw new AccessDeniedException("You can only manage your own anime list");
+            throw new AccessDeniedException("Solo puedes gestionar tu propia lista de anime.");
         }
     }
 
     private Status toEntityStatus(AnimeStatus status) {
-        switch (status) {
-            case Watching:  return Status.WATCHING;
-            case Completed: return Status.COMPLETED;
-            case Dropped:   return Status.DROPPED;
-            default: throw new IllegalArgumentException("Unknown status: " + status);
-        }
+        return switch (status) {
+            case Watching -> Status.WATCHING;
+            case Completed -> Status.COMPLETED;
+            case Dropped -> Status.DROPPED;
+            default -> throw new IllegalArgumentException("Estatus desconocido: " + status);
+        };
     }
 }

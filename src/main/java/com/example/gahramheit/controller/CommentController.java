@@ -32,7 +32,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getReplies(commentId));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER', 'MODERATOR', 'ADMIN')")
     @PostMapping("/api/anime/{animeId}/comments")
     public ResponseEntity<CommentResDTO> createComment(
             @PathVariable Long animeId,

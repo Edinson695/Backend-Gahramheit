@@ -20,7 +20,7 @@ public class AIService {
         }
 
         return String.format(
-                "¡Saludos %s! Este 2024 has demostrado ser un verdadero fanático del género %s. " +
+                "¡Saludos %s! Este 2026 has demostrado ser un verdadero fanático del género %s. " +
                         "Tu calificación promedio fue de %.1f/10, lo que nos dice algo muy claro: %s " +
                         "¡Sigue explorando nuevos mundos el próximo año!",
                 username,

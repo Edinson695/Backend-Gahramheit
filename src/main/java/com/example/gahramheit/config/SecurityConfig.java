@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/anime/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                        .requestMatchers("/api/admin/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

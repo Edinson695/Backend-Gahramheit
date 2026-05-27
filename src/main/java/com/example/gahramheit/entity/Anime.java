@@ -16,17 +16,12 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Anime {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "El título del anime no puede estar vacío")
     @Column(nullable = false)
     private String title;
-
-    @Column(name = "mal_id")
-    private Integer malId;
 
     @Column(name = "episodes_count")
     private Integer episodesCount;
@@ -44,15 +39,16 @@ public class Anime {
     @Column(name = "release_year")
     private Integer releaseYear;
 
-    @ElementCollection
-    @CollectionTable(name = "voice_actors", joinColumns = @JoinColumn(name = "anime_id"))
-    @Column(name = "actor_name")
-    private List<String> actoresVoz = new ArrayList<>();
+    @Column(name = "voice_actors")
+    private String voiceActors;
+
+    @Column(length = 100)
+    private String status;
 
     @OneToMany(mappedBy = "anime", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<Episode> episodes;
+    private List<Episode> episodes = new ArrayList<>();
 
     @OneToMany(mappedBy = "anime", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -65,12 +61,16 @@ public class Anime {
     private Set<UserAnimeList> userAnimeLists = new HashSet<>();
 
     @ManyToMany
-    @JoinTable(name = "anime_genre",
+    @JoinTable(name = "anime_genres",
             joinColumns = @JoinColumn(name = "anime_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Genre> genres = new HashSet<>();
 
+    @OneToMany(mappedBy = "anime", cascade = CascadeType.ALL, orphanRemoval = true) // Si lo pones en User, cambia "anime" por "user"
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Comment> comments = new ArrayList<>();
 }
 

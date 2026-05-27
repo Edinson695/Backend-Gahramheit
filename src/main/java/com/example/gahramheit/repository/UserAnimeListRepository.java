@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UserAnimeListRepository extends JpaRepository<UserAnimeList, UserAnimeListId> {
-    List<UserAnimeList> findByUserId(Long userId);
+    List<UserAnimeList> findByUser_Id(Long userId);
 }
 

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface EpisodeRepository extends JpaRepository<Episode, Long> {
-    List<Episode> findByAnimeIdOrderByEpisodeNumberAsc(Long animeId);
+    List<Episode> findByAnime_IdOrderByEpisodeNumberAsc(Long animeId);
 }
 

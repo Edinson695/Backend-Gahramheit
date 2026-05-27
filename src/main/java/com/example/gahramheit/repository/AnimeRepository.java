@@ -19,5 +19,6 @@ public interface AnimeRepository extends JpaRepository<Anime, Long> {
             nativeQuery = true)
     String getMostWatchedGenreByUser(@org.springframework.data.repository.query.Param("userId") Long userId);
 
+    List<Anime> findByStudioIsNullOrReleaseYearIsNull();
 }
 

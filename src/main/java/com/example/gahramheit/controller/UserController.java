@@ -42,7 +42,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserRecap(id, year));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserUpdateDTO> updateUser(
             @PathVariable Long id,

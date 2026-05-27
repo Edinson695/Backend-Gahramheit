@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    Page<Comment> findByAnimeIdAndParentIdIsNull(Long animeId, Pageable pageable);
+    Page<Comment> findByAnime_IdAndParentIdIsNull(Long animeId, Pageable pageable);
 
     List<Comment> findByParentId(Long parentId);
 

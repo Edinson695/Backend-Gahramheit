@@ -24,7 +24,7 @@ public class UserAnimeListController {
         return ResponseEntity.ok(userAnimeListService.getUserList(userId));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping
     public ResponseEntity<UserAnimeListResDTO> updateAnimeInList(
             @PathVariable Long userId,

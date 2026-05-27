@@ -26,7 +26,7 @@ public class EpisodeService {
             throw new ResourceNotFoundException("Anime not found with id: " + animeId);
         }
 
-        return episodeRepository.findByAnimeIdOrderByEpisodeNumberAsc(animeId)
+        return episodeRepository.findByAnime_IdOrderByEpisodeNumberAsc(animeId)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

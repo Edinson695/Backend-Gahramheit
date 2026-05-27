@@ -17,11 +17,17 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "anime_id", nullable = false)
-    private Long animeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "anime_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Anime anime;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
