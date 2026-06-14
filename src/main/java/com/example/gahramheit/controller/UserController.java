@@ -30,11 +30,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @GetMapping("/{id}/profile")
     public ResponseEntity<UserProfileResDTO> getUserProfile(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserProfile(id));
     }
-
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @GetMapping("/{id}/recap")
     public ResponseEntity<UserRecapResDTO> getUserRecap(
             @PathVariable Long id,
@@ -42,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserRecap(id, year));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserUpdateDTO> updateUser(
             @PathVariable Long id,
@@ -50,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

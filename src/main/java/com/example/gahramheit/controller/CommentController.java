@@ -32,7 +32,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getReplies(commentId));
     }
 
-    @PreAuthorize("hasRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @PostMapping("/api/anime/{animeId}/comments")
     public ResponseEntity<CommentResDTO> createComment(
             @PathVariable Long animeId,
@@ -42,21 +42,21 @@ public class CommentController {
                 .body(commentService.createComment(userId, animeId, request));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @PutMapping("/api/comments/{commentId}/like")
     public ResponseEntity<Void> likeComment(@PathVariable Long commentId) {
         commentService.likeComment(commentId);
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @PutMapping("/api/comments/{commentId}/dislike")
     public ResponseEntity<Void> dislikeComment(@PathVariable Long commentId) {
         commentService.dislikeComment(commentId);
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @DeleteMapping("/api/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long commentId,
@@ -65,7 +65,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @PutMapping("/api/comments/{commentId}")
     public ResponseEntity<CommentResDTO> editComment(
             @PathVariable Long commentId,

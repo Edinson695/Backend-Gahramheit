@@ -1,6 +1,8 @@
 package com.example.gahramheit.controller;
 import com.example.gahramheit.dto.AnimeDTO;
 import com.example.gahramheit.dto.AnimeDetailResDTO;
+import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Genre;
 import com.example.gahramheit.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/anime")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class AnimeController {
     private final AnimeService animeService;
@@ -33,4 +36,16 @@ public class AnimeController {
     public ResponseEntity<AnimeDetailResDTO> getAnimeDetails(@PathVariable Long id) {
         return ResponseEntity.ok(animeService.getAnimeDetails(id));
     }
+
+    @GetMapping("/genre/name/{name}")
+    public ResponseEntity<Page<AnimeDTO>> findByGenreName(
+            @PathVariable String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(
+                animeService.animeFiltradoPorNombre(name, page, size)
+        );
+    }
+    //request dar anime por genero
 }

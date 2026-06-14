@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,5 +66,14 @@ public class AnimeService {
                 .map(Genre::getName)
                 .collect(Collectors.toSet()));
         return dto;
+    }
+
+    public Page<AnimeDTO> animeFiltradoPorNombre(String name, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return animeRepository
+                .findByGenres_NameIgnoreCase(name, pageable)
+                .map(this::toCardDto);
     }
 }

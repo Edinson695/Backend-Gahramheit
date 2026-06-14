@@ -13,7 +13,7 @@ public class AnimeDTO {
     private String title;
     private Integer malId;
     private Integer episodesCount;
-    private String imageUrl;
-    private Set<String> genreNames;
+    private String imageUrl;//
+    private Set<String> genreNames; //
 }
 

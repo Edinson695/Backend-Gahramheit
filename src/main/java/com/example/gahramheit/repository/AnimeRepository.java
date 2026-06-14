@@ -1,6 +1,9 @@
 package com.example.gahramheit.repository;
 
 import com.example.gahramheit.entity.Anime;
+import com.example.gahramheit.entity.Genre;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +23,7 @@ public interface AnimeRepository extends JpaRepository<Anime, Long> {
     String getMostWatchedGenreByUser(@org.springframework.data.repository.query.Param("userId") Long userId);
 
     List<Anime> findByStudioIsNullOrReleaseYearIsNull();
+
+    Page<Anime> findByGenres_NameIgnoreCase(String name, Pageable pageable);
 }
 
