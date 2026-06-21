@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users/{userId}/anime-list")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UserAnimeListController {
 

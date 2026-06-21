@@ -38,6 +38,7 @@ public class UserAnimeListService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public UserAnimeListResDTO updateAnimeInList(Long userId, UpdateUserAnimeListReqDTO request) {
         verifyOwnership(userId);
 
