@@ -33,7 +33,7 @@ public class UserAnimeListController {
         return ResponseEntity.ok(userAnimeListService.updateAnimeInList(userId, request));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @DeleteMapping("/{animeId}")
     public ResponseEntity<Void> removeFromList(
             @PathVariable Long userId,
