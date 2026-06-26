@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,7 +38,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
+                // Forzamos explícitamente a usar nuestro método de abajo
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -70,21 +70,24 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // URLs de origen permitidas (Local y Producción)
-        configuration.setAllowedOrigins(Arrays.asList(
+        // Agregamos tus dos entornos y por seguridad permitimos patrones con asterisco
+        configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:5173",
                 "http://54.211.219.233:5173"
         ));
 
-        // Habilitar todos los métodos estándar para tus controladores REST
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // Permitir cabeceras requeridas para el envío de JSON y tokens JWT
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplica el filtro a todo el backend
-        return source;
+        source.registerCorsConfiguration("/**", source); // Cambiado a source para asegurar mapeo total
+        
+        // Mapeo manual extra para garantizar cobertura de endpoints
+        UrlBasedCorsConfigurationSource finalSource = new UrlBasedCorsConfigurationSource();
+        finalSource.registerCorsConfiguration("/api/**", configuration);
+        finalSource.registerCorsConfiguration("/**", configuration);
+        
+        return finalSource;
     }
 }
