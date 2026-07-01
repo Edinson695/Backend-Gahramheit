@@ -15,5 +15,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT ROUND(AVG(r.score), 1) FROM Review r WHERE r.user.id = :userId")
     Double getAverageScoreByUser(@Param("userId") Long userId);
+
+    @Query("SELECT r.anime.id, r.anime.title, r.score FROM Review r " +
+           "WHERE r.user.id = :userId ORDER BY r.score DESC")
+    List<Object[]> findTopAnimeByUser(@Param("userId") Long userId);
 }
 
