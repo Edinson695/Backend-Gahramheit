@@ -1,7 +1,6 @@
 package com.example.gahramheit.service;
 
 import com.example.gahramheit.dto.UserProfileResDTO;
-import com.example.gahramheit.dto.UserRecapResDTO;
 import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.entity.Role;
@@ -49,17 +48,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return buildProfile(user);
-    }
-
-    public UserRecapResDTO getUserRecap(Long id, Integer year) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
-        }
-
-        List<UserAnimeList> userList = userAnimeListRepository.findByUser_Id(id);
-
-        // 💡 SOLUCIÓN EXTRACT METHOD: Lógica movida a un método privado para limpiar getUserRecap
-        return buildRecapDto(userList, year);
     }
 
     @Transactional
@@ -130,30 +118,6 @@ public class UserService {
         return dto;
     }
 
-    private UserRecapResDTO buildRecapDto(List<UserAnimeList> userList, Integer year) {
-        int totalEpisodes = userList.stream()
-                .filter(ual -> ual.getCurrentEpisode() != null)
-                .mapToInt(UserAnimeList::getCurrentEpisode)
-                .sum();
-
-        long completedCount = userList.stream()
-                .filter(ual -> ual.getStatus() == Status.COMPLETED)
-                .count();
-
-        UserRecapResDTO dto = new UserRecapResDTO();
-        dto.setAnio(year);
-        dto.setTotalEpisodiosVistos(totalEpisodes);
-        dto.setTiempoTotalMinutos(totalEpisodes * 24L);
-        dto.setGeneroFavorito("Sin datos");
-        dto.setInsigniaDestacadaAnual(completedCount >= 10 ? "Completador Serial" : "Principiante");
-
-        UserRecapResDTO.TopAnime top = new UserRecapResDTO.TopAnime();
-        top.setId(0L);
-        top.setTitle("Sin datos");
-        top.setScore(0);
-        dto.setAnimeMejorCalificado(top);
-        return dto;
-    }
     private String calculateRango(long animesCompletados) {
         if (animesCompletados >= 30) return "Dios del Anime";
         if (animesCompletados >= 15) return "Otaku Experimentado";

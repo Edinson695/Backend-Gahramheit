@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "user_recaps")
 @Data
@@ -25,8 +27,11 @@ public class UserRecap {
     @Column(name = "recap_year", nullable = false)
     private Integer year;
 
-    @Column(name = "total_genres_rated")
-    private Integer totalGenresRated;
+    @Column(name = "total_episodes_watched")
+    private Integer totalEpisodesWatched;
+
+    @Column(name = "total_time_minutes")
+    private Long totalTimeMinutes;
 
     @Column(name = "top_genre", length = 50)
     private String topGenre;
@@ -37,6 +42,21 @@ public class UserRecap {
     @Column(name = "average_score")
     private Double averageScore;
 
+    @Column(name = "favorite_anime_id")
+    private Long favoriteAnimeId;
+
+    @Column(name = "favorite_anime_title", length = 255)
+    private String favoriteAnimeTitle;
+
+    @Column(name = "favorite_anime_score")
+    private Integer favoriteAnimeScore;
+
+    @Column(name = "badge_earned", length = 100)
+    private String badgeEarned;
+
     @Column(name = "ai_personalized_message", columnDefinition = "TEXT")
     private String aiPersonalizedMessage;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 }

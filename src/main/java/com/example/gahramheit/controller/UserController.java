@@ -3,7 +3,6 @@ package com.example.gahramheit.controller;
 import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
-import com.example.gahramheit.dto.UserRecapResDTO;
 import com.example.gahramheit.entity.Role;
 import com.example.gahramheit.service.UserService;
 import jakarta.validation.Valid;
@@ -34,13 +33,6 @@ public class UserController {
     @GetMapping("/{id}/profile")
     public ResponseEntity<UserProfileResDTO> getUserProfile(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserProfile(id));
-    }
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
-    @GetMapping("/{id}/recap")
-    public ResponseEntity<UserRecapResDTO> getUserRecap(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "2024") Integer year) {
-        return ResponseEntity.ok(userService.getUserRecap(id, year));
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
