@@ -27,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final ApplicationEventPublisher eventPublisher;
+    private final AchievementService achievementService;
 
     public AuthResDTO login(UserLoginReqDTO request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -65,6 +66,8 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+
+        achievementService.checkAndUnlock(user.getId());
 
         eventPublisher.publishEvent(new UserRegisteredEvent(user.getEmail(), user.getUsername()));
 

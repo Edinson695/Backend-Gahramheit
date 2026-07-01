@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,8 +15,9 @@ public class UserProfileResDTO {
     private Long id;
     private String username;
     private String role;
-    private String rango; // Ej: "Otaku en formación"
+    private String rango;
     private Integer episodiosVistos;
     private Integer animesCompletados;
-    private String logrosDesbloqueados; // Ej: "0/6"
+    private String logrosDesbloqueados;
+    private List<AchievementResDTO> logros;
 }

@@ -19,5 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r.anime.id, r.anime.title, r.score FROM Review r " +
            "WHERE r.user.id = :userId ORDER BY r.score DESC")
     List<Object[]> findTopAnimeByUser(@Param("userId") Long userId);
+
+    long countByUser_Id(Long userId);
 }
 

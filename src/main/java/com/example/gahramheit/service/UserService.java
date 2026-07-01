@@ -1,5 +1,6 @@
 package com.example.gahramheit.service;
 
+import com.example.gahramheit.dto.AchievementResDTO;
 import com.example.gahramheit.dto.UserProfileResDTO;
 import com.example.gahramheit.dto.UserResponseDTO;
 import com.example.gahramheit.dto.UserUpdateDTO;
@@ -31,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAnimeListRepository userAnimeListRepository;
     private final ModelMapper modelMapper;
+    private final AchievementService achievementService;
 
     public UserProfileResDTO getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -112,7 +114,10 @@ public class UserService {
         dto.setRole(user.getRole().name());
         dto.setEpisodiosVistos(episodiosVistos);
         dto.setAnimesCompletados((int) animesCompletados);
-        dto.setLogrosDesbloqueados("0/6");
+        long totalAchievements = achievementService.getUnlockedCount(user.getId());
+        List<AchievementResDTO> achievements = achievementService.getUserAchievements(user.getId());
+        dto.setLogrosDesbloqueados(totalAchievements + "/6");
+        dto.setLogros(achievements);
         dto.setRango(calculateRango(animesCompletados));
 
         return dto;

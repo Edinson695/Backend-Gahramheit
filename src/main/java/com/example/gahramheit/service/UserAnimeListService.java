@@ -26,6 +26,7 @@ public class UserAnimeListService {
     private final UserAnimeListRepository userAnimeListRepository;
     private final UserRepository userRepository;
     private final AnimeRepository animeRepository;
+    private final AchievementService achievementService;
 
     public List<UserAnimeListResDTO> getUserList(Long userId) {
         if (!userRepository.existsById(userId)) {
@@ -66,6 +67,9 @@ public class UserAnimeListService {
         }
 
         userAnimeListRepository.save(userAnimeList);
+
+        achievementService.checkAndUnlock(userId);
+
         return toDto(userAnimeList);
     }
 

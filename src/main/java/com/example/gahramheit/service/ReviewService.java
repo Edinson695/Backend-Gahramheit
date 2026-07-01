@@ -33,6 +33,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final AchievementService achievementService;
 
     @Transactional
     public ReviewResDTO createReview(Long userId, ReviewCreateReqDTO request) {
@@ -52,6 +53,9 @@ public class ReviewService {
 
         reviewRepository.save(review);
         eventPublisher.publishEvent(new AnimeReviewedEvent(review.getAnime().getId(), review.getScore()));
+
+        achievementService.checkAndUnlock(userId);
+
         return toDto(review);
     }
 
