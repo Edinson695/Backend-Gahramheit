@@ -31,7 +31,7 @@ public class WrappedService {
     private final AIService aiService;
     private final BadgeService badgeService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserRecapResDTO getRecap(Long userId, Integer year) {
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("Usuario no encontrado con id: " + userId);

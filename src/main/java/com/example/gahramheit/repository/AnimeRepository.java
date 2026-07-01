@@ -16,7 +16,7 @@ public interface AnimeRepository extends JpaRepository<Anime, Long> {
     List<Anime> findByTitleContainingIgnoreCase(String title);
     @org.springframework.data.jpa.repository.Query(
             value = "SELECT g.name FROM user_anime_list ual " +
-                    "JOIN anime_genre ag ON ual.anime_id = ag.anime_id " +
+                    "JOIN anime_genres ag ON ual.anime_id = ag.anime_id " +
                     "JOIN genres g ON ag.genre_id = g.id " +
                     "WHERE ual.user_id = :userId " +
                     "GROUP BY g.name " +
